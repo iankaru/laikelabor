@@ -1,0 +1,1 @@
+ALTER TABLE "bookings" ADD COLUMN "car_model" text DEFAULT '' NOT NULL;
