@@ -1,4 +1,4 @@
-import { calculate, priceLabel, locations } from './pricing.mjs';
+import { calculate, priceLabel, locations, isWinterSeason } from './pricing.mjs';
 
 const form = document.querySelector('#service-form');
 const bookingForm = document.querySelector('#booking-form');
@@ -83,7 +83,7 @@ $('#choose-bundle').addEventListener('click', () => {
 });
 $('#reset').addEventListener('click', () => {
   form.querySelectorAll('[name="service"]').forEach(input => { input.checked = false; });
-  form.querySelector('[value="kakumae"]').checked = true;
+  form.querySelector('[value="mustamae"]').checked = true;
   render();
   $('#feedback').textContent = 'Valikud tühjendatud.';
 });
@@ -144,6 +144,16 @@ bookingForm.addEventListener('submit', async event => {
     button.querySelector('span').textContent = 'Saada broneering';
   }
 });
+// The on-site (mobile) service is not offered during the winter season.
+if (isWinterSeason()) {
+  const mobileInput = form.querySelector('[name="location"][value="mobile"]');
+  mobileInput.disabled = true;
+  if (mobileInput.checked) form.querySelector('[value="mustamae"]').checked = true;
+  $('#mobile-location-card').classList.add('is-unavailable');
+  $('#mobile-location-card').title = 'Talvehooajal ei pakuta';
+  $('#mobile-location-detail').textContent = 'Talvel ei pakuta';
+  $('#winter-note').hidden = false;
+}
 render();
 
 // Tagasiside

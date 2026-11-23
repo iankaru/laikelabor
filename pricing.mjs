@@ -7,11 +7,16 @@ export const services = {
   tarIron: { name: 'Täispigi- ja rauaeemaldus', min: 15, max: 15, starting: false },
 };
 export const locations = {
-  kakumae: { name: 'Kakumäe', address: 'Soolahe 54', fee: 0, description: 'Tule meie juurde Kakumäele aadressile Soolahe 54.' },
   mustamae: { name: 'Mustamäe', address: 'Kadaka tee 42b', fee: 0, description: 'Tule meie juurde Mustamäele aadressile Kadaka tee 42b.' },
   mobile: { name: 'Tuleme sinu juurde', address: 'Sinu valitud aadress', fee: 10, description: 'Tuleme sinu juurde. Kohaletuleku tasu +10 € lisatakse automaatselt kogusummale.' },
 };
-export function calculate(selected, location = 'kakumae') {
+// On-site (mobile) service is unavailable during the winter season: November–March.
+export const WINTER_MONTHS = [11, 12, 1, 2, 3];
+export function isWinterSeason(date = new Date()) {
+  const month = Number(new Intl.DateTimeFormat('en-US', { month: 'numeric', timeZone: 'Europe/Tallinn' }).format(date));
+  return WINTER_MONTHS.includes(month);
+}
+export function calculate(selected, location = 'mustamae') {
   const ids = new Set([...selected].filter(id => Object.hasOwn(services, id)));
   const combined = ids.has('interior') && ids.has('exterior');
   const items = [];
@@ -20,7 +25,7 @@ export function calculate(selected, location = 'kakumae') {
     if (combined && (id === 'interior' || id === 'exterior')) continue;
     items.push({ id, ...services[id] });
   }
-  const selectedLocation = locations[location] ?? locations.kakumae;
+  const selectedLocation = locations[location] ?? locations.mustamae;
   if (ids.size && selectedLocation.fee) {
     items.push({ id: 'travel', name: 'Kohaletulek', min: selectedLocation.fee, max: selectedLocation.fee, starting: false });
   }
